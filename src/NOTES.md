@@ -63,3 +63,7 @@ Interfaces:  Items (Usable, Equippable).
 
 
 Generics: Inventory<T>.
+
+
+
+Thinking stage will handle the scrolling/map 

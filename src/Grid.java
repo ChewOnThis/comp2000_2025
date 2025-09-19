@@ -3,7 +3,10 @@ import java.awt.Point;
 import java.util.Optional;
 
 public class Grid {
-  Cell[][] cells = new Cell[20][20];
+  
+  private int columns = 20;
+  private int rows = 20;
+ Cell[][] cells = new Cell[columns][rows];
   
   public Grid() {
     for(int i=0; i<cells.length; i++) {
@@ -12,6 +15,10 @@ public class Grid {
       }
     }
   }
+  
+
+  
+
 
   private char colToLabel(int col) {
     return (char) (col + Character.valueOf('A'));
@@ -21,10 +28,13 @@ public class Grid {
     return (int) (col - Character.valueOf('A'));
   }
 
-  public void paint(Graphics g, Point mousePos) {
-    for(int i=0; i<cells.length; i++) {
-      for(int j=0; j<cells[i].length; j++) {
-        cells[i][j].paint(g, mousePos);
+  public void paint(Graphics g, Point mousePos, int offsetX, int offsetY) {
+    for(int i=0; i<columns; i++) {
+      for(int j=0; j<rows; j++) {
+        Cell cell = cells[i][j];
+        g.translate(offsetX, offsetY);
+        cell.paint(g, mousePos);
+        g.translate(-offsetX, -offsetY);
       }
     }
   }
