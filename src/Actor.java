@@ -10,6 +10,8 @@ public abstract class Actor {
 
   public abstract void paint(Graphics g, int offsetX, int offsetY);
 
+  
+
   public void paint(Graphics g) {
     for(Polygon p: display) {
       g.setColor(color);
@@ -18,4 +20,6 @@ public abstract class Actor {
       g.drawPolygon(p);
     }
   }
+
+  
 }

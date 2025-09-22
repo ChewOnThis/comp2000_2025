@@ -3,22 +3,20 @@ import java.awt.Point;
 import java.util.Optional;
 
 public class Grid {
-  
-  private int columns = 20;
-  private int rows = 20;
- Cell[][] cells = new Cell[columns][rows];
-  
-  public Grid() {
-    for(int i=0; i<cells.length; i++) {
-      for(int j=0; j<cells[i].length; j++) {
-        cells[i][j] = new Cell(colToLabel(i), j, 10+Cell.size*i, 10+Cell.size*j);
+  public int columns;
+  public int rows;
+  Cell[][] cells;
+
+  public Grid(int columns, int rows) {
+    this.columns = columns;
+    this.rows = rows;
+    cells = new Cell[columns][rows];
+    for(int i=0; i<columns; i++) {
+      for(int j=0; j<rows; j++) {
+        cells[i][j] = new Cell(colToLabel(i), j, 10 + Cell.size * i, 10 + Cell.size * j);
       }
     }
   }
-  
-
-  
-
 
   private char colToLabel(int col) {
     return (char) (col + Character.valueOf('A'));
@@ -62,3 +60,4 @@ public class Grid {
     return Optional.empty();
   }
 }
+

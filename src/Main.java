@@ -32,17 +32,17 @@ public class Main extends JFrame {
       this.setVisible(true);
 
       addKeyListener(new KeyAdapter() {
-        @Override
-        public void keyPressed(KeyEvent e) {
-            switch(e.getKeyCode()) {
-                case KeyEvent.VK_LEFT -> canvas.stage.moveCam(-10, 0);
-                case KeyEvent.VK_RIGHT -> canvas.stage.moveCam(10, 0);
-                case KeyEvent.VK_UP -> canvas.stage.moveCam(0, -10);
-                case KeyEvent.VK_DOWN -> canvas.stage.moveCam(0, 10);
-            }
-            repaint();
-        }
-      });
+  @Override
+  public void keyPressed(KeyEvent e) {
+    switch(e.getKeyCode()) {
+      case KeyEvent.VK_LEFT -> canvas.stage.movePlayer(-1, 0);
+      case KeyEvent.VK_RIGHT -> canvas.stage.movePlayer(1, 0);
+      case KeyEvent.VK_UP -> canvas.stage.movePlayer(0, -1);
+      case KeyEvent.VK_DOWN -> canvas.stage.movePlayer(0, 1);
+    }
+    repaint();
+  }
+});
       setFocusable(true);
     }
 

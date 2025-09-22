@@ -66,4 +66,12 @@ Generics: Inventory<T>.
 
 
 
-Thinking stage will handle the scrolling/map 
+Stage will handle the scrolling/map 
+Will actually need to have an Actor player rather than just drawing in the centre if I want to be able to pick up items/interact with enemies.
+
+New file Player.java that handles
+
+Changes:
+- Updated Main.java to use movePlayer(dx, dy) for arrow key movement, so the player moves between cells and the grid scrolls to keep the player centered.
+- Updated Grid.java to accept columns and rows as constructor parameters for dynamic grid sizing.
+- Updated Stage.java movePlayer logic to correctly convert column char to index and back, ensuring proper movement and bounds checking.
