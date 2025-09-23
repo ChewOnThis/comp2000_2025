@@ -1,3 +1,4 @@
-public class Item {
-    
+public interface Item {
+    String id();
+    String label();
 }

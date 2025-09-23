@@ -1,27 +1,19 @@
-// import java.awt.Color;
-// import java.awt.Polygon;
-// import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Graphics;
 
-// public class Dog extends Actor {
-//   public Dog(Cell inLoc) {
-//     loc = inLoc;
-//     color = Color.YELLOW;
-//     display = new ArrayList<Polygon>();
-//     Polygon ear1 = new Polygon();
-//     ear1.addPoint(loc.x + 5, loc.y + 5);
-//     ear1.addPoint(loc.x + 15, loc.y + 5);
-//     ear1.addPoint(loc.x + 5, loc.y + 15);
-//     Polygon ear2 = new Polygon();
-//     ear2.addPoint(loc.x + 20, loc.y + 5);
-//     ear2.addPoint(loc.x + 30, loc.y + 5);
-//     ear2.addPoint(loc.x + 30, loc.y + 15);
-//     Polygon face = new Polygon();
-//     face.addPoint(loc.x + 8, loc.y + 7);
-//     face.addPoint(loc.x + 27, loc.y + 7);
-//     face.addPoint(loc.x + 27, loc.y + 25);
-//     face.addPoint(loc.x + 8, loc.y + 25);
-//     display.add(face);
-//     display.add(ear1);
-//     display.add(ear2);
-//   }
-// }
+public class Dog implements Actor {
+    private int c, r; private int hp = 1;
+    public Dog(Cell start) { this.c = start.colIndex(); this.r = start.rowIndex(); }
+    @Override public int col() { return c; }
+    @Override public int row() { return r; }
+    @Override public void setPosition(int c, int r) { this.c = c; this.r = r; }
+    @Override public boolean isDead() { return hp <= 0; }
+    @Override public void damage(int d) { hp -= d; }
+    @Override public void render(Graphics g, int offsetX, int offsetY) {
+        int x = c * Cell.SIZE + offsetX, y = r * Cell.SIZE + offsetY;
+        g.setColor(Color.ORANGE);
+        g.fillRect(x + 4, y + 4, Cell.SIZE - 8, Cell.SIZE - 8);
+        g.setColor(Color.BLACK);
+        g.drawString("Dog", x + 4, y + Cell.SIZE - 6);
+    }
+}

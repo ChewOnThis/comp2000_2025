@@ -1,25 +1,10 @@
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Polygon;
-import java.util.List;
 
-public abstract class Actor {
-  Color color;
-  Cell loc;
-  List<Polygon> display;
-
-  public abstract void paint(Graphics g, int offsetX, int offsetY);
-
-  
-
-  public void paint(Graphics g) {
-    for(Polygon p: display) {
-      g.setColor(color);
-      g.fillPolygon(p);
-      g.setColor(Color.GRAY);
-      g.drawPolygon(p);
-    }
-  }
-
-  
+public interface Actor {
+    int col();
+    int row();
+    void setPosition(int c, int r);
+    boolean isDead();
+    void damage(int d);
+    void render(Graphics g, int offsetX, int offsetY);
 }

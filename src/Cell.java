@@ -1,35 +1,25 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Rectangle;
 
-public class Cell extends Rectangle {
-  static int size = 35;
-  char col;
-  int row;
+public class Cell {
+    public static final int SIZE = 24;
+    private final int col, row;
+    private Terrain terrain = Terrain.GRASS;
 
-  public Cell(char inCol, int inRow, int x, int y) {
-    super(x, y, size, size);
-    col = inCol;
-    row = inRow;
-  }
+    public Cell(int col, int row) { this.col = col; this.row = row; }
+    public int colIndex() { return col; }
+    public int rowIndex() { return row; }
 
-  public void paint(Graphics g, Point mousePos) {
-    // if(contains(mousePos)) {
-    //   g.setColor(Color.GRAY);
-    // } else {
-      g.setColor(Color.WHITE);
-    // }
-    g.fillRect(x, y, size, size);
-    g.setColor(Color.BLACK);
-    g.drawRect(x, y, size, size);
-  }
+    public void setTerrain(Terrain t) { this.terrain = t; }
+    public Terrain getTerrain() { return terrain; }
 
-  public boolean contains(Point p) {
-    if(p != null) {
-      return super.contains(p);
-    } else {
-      return false;
+    public void paint(Graphics g, Point mouse, int offsetX, int offsetY) {
+        int x = col * SIZE + offsetX;
+        int y = row * SIZE + offsetY;
+        g.setColor(terrain.getColour());
+        g.fillRect(x, y, SIZE, SIZE);
+        g.setColor(Color.DARK_GRAY);
+        g.drawRect(x, y, SIZE, SIZE);
     }
-  }
 }
