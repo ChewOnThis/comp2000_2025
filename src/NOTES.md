@@ -82,3 +82,4 @@ Refactor Actor to extend Renderable and Updatable and adapt existing actors. Beh
 Actor now promises both render and update, plus position and health semantics. Dog, Cat, Bird, and Player implement empty update methods to keep behaviour unchanged for now
 
 Biome generation, Desert, Forest, Plains/Grasslands, Water.  
+acts as a capability provider for terrain defaults and future spawn weights. Adding concrete biomes now, without using them in generation, keeps the build stable and makes the next switch to procedural terrain a focused and low-risk change.
