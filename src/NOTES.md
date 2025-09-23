@@ -75,3 +75,5 @@ Changes:
 - Updated Main.java to use movePlayer(dx, dy) for arrow key movement, so the player moves between cells and the grid scrolls to keep the player centered.
 - Updated Grid.java to accept columns and rows as constructor parameters for dynamic grid sizing.
 - Updated Stage.java movePlayer logic to correctly convert column char to index and back, ensuring proper movement and bounds checking.
+
+Add Renderable and Updatable interfaces to separate drawing from ticking. No behavioural change yet, only contracts to prepare safe refactors.
