@@ -77,3 +77,8 @@ Changes:
 - Updated Stage.java movePlayer logic to correctly convert column char to index and back, ensuring proper movement and bounds checking.
 
 Add Renderable and Updatable interfaces to separate drawing from ticking. No behavioural change yet, only contracts to prepare safe refactors.
+
+Refactor Actor to extend Renderable and Updatable and adapt existing actors. Behaviour remains the same while responsibilities are clarified.
+Actor now promises both render and update, plus position and health semantics. Dog, Cat, Bird, and Player implement empty update methods to keep behaviour unchanged for now
+
+Biome generation, Desert, Forest, Plains/Grasslands, Water.  
