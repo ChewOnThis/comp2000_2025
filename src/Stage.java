@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+
 
 public class Stage {
     private final Grid grid;
@@ -9,6 +12,11 @@ public class Stage {
     private final int viewCols = 30, viewRows = 22;
     private boolean started = false;
     private boolean showInventory = false;
+    private final EnemyFactory enemyFactory = new EnemyFactory(12345);
+    private final List<DroppedItem> drops = new ArrayList<>();
+    private final Random rng = new Random(0x9e3779b9);
+
+
 
     public Stage(int cols, int rows, int seed) {
         this.grid = new Grid(cols, rows, seed);
@@ -17,6 +25,11 @@ public class Stage {
         actors.add(new Dog(grid.cellAt(2, 2)));
         actors.add(new Cat(grid.cellAt(5, 7)));
         actors.add(new Bird(grid.cellAt(10, 10)));
+        for (int i = 0; i < 8; i++) {
+    int c = rng.nextInt(cols), r = rng.nextInt(rows);
+    drops.add(new DroppedItem(c, r, (i % 3 == 0) ? new SpeedPowerup() : new Potion()));
+}
+
     }
 
     public void startGame() { started = true; }
@@ -36,6 +49,8 @@ public class Stage {
         }
         int offsetX = ww / 2 - player.col() * Cell.SIZE - Cell.SIZE / 2;
         int offsetY = wh / 2 - player.row() * Cell.SIZE - Cell.SIZE / 2;
+        for (DroppedItem d : drops) d.render(g, offsetX, offsetY);
+
 
         grid.paint(g, mouse, offsetX, offsetY, viewCols, viewRows, player.col(), player.row());
         for (Actor a : actors) a.render(g, offsetX, offsetY);
