@@ -85,3 +85,4 @@ Biome generation, Desert, Forest, Plains/Grasslands, Water.
 acts as a capability provider for terrain defaults and future spawn weights. Adding concrete biomes now, without using them in generation, keeps the build stable and makes the next switch to procedural terrain a focused and low-risk change.
 
 Grid now seeds biome centres and assigns each cell to its nearest centre. produces visible regions of grass, sand, and water while remaining deterministic by seed. 
+Enemies share hp, colour, and rendering via the base class while subclasses specialise appearance
