@@ -6,6 +6,8 @@ public class Cell {
     public static final int SIZE = 24;
     private final int col, row;
     private Terrain terrain = Terrain.GRASS;
+    private CellEffect effect = CellEffect.NONE;
+
 
     public Cell(int col, int row) { this.col = col; this.row = row; }
     public int colIndex() { return col; }
@@ -13,6 +15,8 @@ public class Cell {
 
     public void setTerrain(Terrain t) { this.terrain = t; }
     public Terrain getTerrain() { return terrain; }
+    public void setEffect(CellEffect e) { this.effect = e; }
+    public CellEffect getEffect() { return effect; }
 
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY) {
         int x = col * SIZE + offsetX;

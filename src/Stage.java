@@ -25,6 +25,17 @@ public class Stage {
         actors.add(new Dog(grid.cellAt(2, 2)));
         actors.add(new Cat(grid.cellAt(5, 7)));
         actors.add(new Bird(grid.cellAt(10, 10)));
+        for (int i = 0; i < 24; i++) {
+    int c = rng.nextInt(cols), r = rng.nextInt(rows);
+    Terrain t = grid.cellAt(c, r).getTerrain();
+    Enemy e = switch (t) {
+        case GRASS -> new SlimeEnemy(c, r);
+        case SAND  -> new ScorpionEnemy(c, r);
+        case WATER -> new PiranhaEnemy(c, r);
+    };
+    actors.add(e);
+}
+
         for (int i = 0; i < 8; i++) {
     int c = rng.nextInt(cols), r = rng.nextInt(rows);
     drops.add(new DroppedItem(c, r, (i % 3 == 0) ? new SpeedPowerup() : new Potion()));
@@ -39,6 +50,15 @@ public class Stage {
         int nc = player.col() + dc;
         int nr = player.row() + dr;
         if (grid.inBounds(nc, nr)) player.setPosition(nc, nr);
+       for (int i = 0; i < drops.size(); i++) {
+    DroppedItem d = drops.get(i);
+    if (d.col == player.col() && d.row == player.row()) {
+        player.inventory().add(d.item);
+        drops.remove(i);
+        i--;
+    }
+}
+ 
     }
 
     public void paint(Graphics g, Point mouse, int ww, int wh) {
