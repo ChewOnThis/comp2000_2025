@@ -1,16 +1,59 @@
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.*;
 
 public class Grid {
     public final int columns, rows;
     public final Cell[][] cells;
 
+    private final int seed;
+    private final Noise noiseHigh;
+    private final Random rng;
+    private final List<Biome> biomes = List.of(
+        new GrasslandBiome(), new DesertBiome(), new WaterBiome(), new ForestBiome()
+    );
+
     public Grid(int columns, int rows, int seed) {
         this.columns = columns; this.rows = rows;
+        this.seed = seed;
+        this.noiseHigh = new Noise(seed ^ 0x5bd1e995);
+        this.rng = new Random(seed);
         cells = new Cell[columns][rows];
+        generate();
+    }
+
+    private void generate() {
+        // simple Voronoi-like centres
+        int k = Math.max(6, (columns * rows) / 500);
+        Point[] centres = new Point[k];
+        Biome[] centreBiome = new Biome[k];
+        for (int i = 0; i < k; i++) {
+            centres[i] = new Point(rng.nextInt(columns), rng.nextInt(rows));
+            centreBiome[i] = biomes.get(rng.nextInt(biomes.size()));
+        }
+
         for (int c = 0; c < columns; c++) {
             for (int r = 0; r < rows; r++) {
+                int best = 0;
+                double bestD2 = Double.POSITIVE_INFINITY;
+                for (int i = 0; i < k; i++) {
+                    int dx = c - centres[i].x, dy = r - centres[i].y;
+                    double d2 = dx * dx + dy * dy;
+                    if (d2 < bestD2) { bestD2 = d2; best = i; }
+                }
                 cells[c][r] = new Cell(c, r);
+                cells[c][r].setTerrain(centreBiome[best].baseTerrain());
+            }
+        }
+
+        // add noisy borders
+        for (int c = 1; c < columns - 1; c++) {
+            for (int r = 1; r < rows - 1; r++) {
+                double v = noiseHigh.value(c * 3, r * 3);
+                if (v > 0.62) {
+                    // sprinkle water patches
+                    cells[c][r].setTerrain(Terrain.WATER);
+                }
             }
         }
     }
