@@ -5,6 +5,7 @@ public class Bird implements Actor {
     private int c, r; private int hp = 1;
     public Bird(Cell start) { this.c = start.colIndex(); this.r = start.rowIndex(); }
     @Override public int col() { return c; }
+    @Override public void update(Grid grid) { /* idle */ }
     @Override public int row() { return r; }
     @Override public void setPosition(int c, int r) { this.c = c; this.r = r; }
     @Override public boolean isDead() { return hp <= 0; }
