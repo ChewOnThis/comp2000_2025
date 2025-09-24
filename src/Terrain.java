@@ -18,4 +18,7 @@ public enum Terrain {
     public Color getColor() {
         return color;
     }
+      public boolean isPassable() {
+        return passable;
+    }
 }

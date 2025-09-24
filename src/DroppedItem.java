@@ -9,7 +9,8 @@ public class DroppedItem implements Renderable {
         this.col = col; this.row = row; this.item = item;
     }
 
-      public DroppedItem(Item item, int col, int row) { this(col, row, item); }
+   
+    public DroppedItem(Item item, int col, int row) { this(col, row, item); }
 
     @Override
     public void render(Graphics g, int offsetX, int offsetY) {

@@ -17,15 +17,16 @@ public abstract class Enemy implements Actor {
 
     @Override
     public void render(Graphics g, int offsetX, int offsetY) {
-          int size = Math.max(6, Cell.SIZE - 8);
-        int x = col * Cell.SIZE + (Cell.SIZE - size) / 2 + offsetX;
+          
+           int size = (int)(Cell.SIZE * 0.8);
+          int x = col * Cell.SIZE + (Cell.SIZE - size) / 2 + offsetX;
         int y = row * Cell.SIZE + (Cell.SIZE - size) / 2 + offsetY;
         g.setColor(color);
          g.fillRect(x, y, size, size);
       g.setColor(Color.BLACK);
     g.drawRect(x, y, size, size);
 
-        // draw nameplate above
+        
         g.setColor(Color.WHITE);
         String name = type();
         int w = g.getFontMetrics().stringWidth(name);

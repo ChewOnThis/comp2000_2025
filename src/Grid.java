@@ -20,7 +20,6 @@ public class Grid {
     }
 
     private void generate() {
-        // simple Voronoi-like centres
         int k = Math.max(6, (columns * rows) / 500);
         Point[] centres = new Point[k];
         Biome[] centreBiome = new Biome[k];
@@ -43,12 +42,10 @@ public class Grid {
             }
         }
 
-        // add noisy borders
         for (int c = 1; c < columns - 1; c++) {
             for (int r = 1; r < rows - 1; r++) {
                 double v = noiseHigh.value(c * 3, r * 3);
                 if (v > 0.62) {
-                    // sprinkle water patches
                     cells[c][r].setTerrain(Terrain.WATER);
                 }
             }
@@ -71,5 +68,9 @@ public class Grid {
                 cells[c][r].paint(g, mouse, offsetX, offsetY);
             }
         }
+    }
+
+    public boolean passable(int c, int r) {
+        return inBounds(c, r) && cells[c][r].passable();
     }
 }

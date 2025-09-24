@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashSet;
-import java.util.Set;
 import javax.swing.*;
 
 public class Main extends JFrame {
@@ -9,22 +7,19 @@ public class Main extends JFrame {
 
     class Canvas extends JPanel {
         private Stage stage;
-        private final Set<Integer> pressedKeys = new HashSet<>();
 
         Canvas() {
             setPreferredSize(new Dimension(800, 600));
             setFocusable(true);
             requestFocusInWindow();
 
-            // Default world size and seed
-            int worldCols = 60, worldRows = 45;
+            int worldCols = 50,worldRows = 50;
             int seed = (int)(System.currentTimeMillis() & 0x7fffffff);
 
             stage = new Stage(worldCols, worldRows, seed);
 
             addKeyListener(new KeyAdapter() {
                 @Override public void keyPressed(KeyEvent e) {
-                    pressedKeys.add(e.getKeyCode());
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_ENTER -> { stage.startGame(); repaint(); }
                         case KeyEvent.VK_W, KeyEvent.VK_UP -> { stage.movePlayer(0, -1); repaint(); }
@@ -34,7 +29,6 @@ public class Main extends JFrame {
                         case KeyEvent.VK_I -> { stage.toggleInventory(); repaint(); }
                     }
                 }
-                @Override public void keyReleased(KeyEvent e) { pressedKeys.remove(e.getKeyCode()); }
             });
         }
 
