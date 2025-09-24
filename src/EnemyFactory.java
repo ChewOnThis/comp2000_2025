@@ -1,7 +1,5 @@
-import java.util.*;
-
 public class EnemyFactory {
-    public EnemyFactory(int seed) { /* rng not needed currently */ }
+    public EnemyFactory(int seed) { /* currently stateless */ }
 
     public Enemy create(String name, int c, int r) {
         return switch (name) {

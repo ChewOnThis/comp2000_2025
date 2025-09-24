@@ -1,5 +1,5 @@
 public class Weapon implements Item { 
-    public String getName() { return "Sword"; } 
-    public boolean isStackable() { return false; } 
+    @Override public String getName() { return "Sword"; } 
+    @Override public boolean isStackable() { return false; } 
 }
    

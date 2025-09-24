@@ -24,17 +24,8 @@ public class Inventory<T extends Item> {
         return out;
     }
 
-    
    
     public Set<String> names() { return new LinkedHashSet<>(slots.keySet()); }
-
-    
     public List<T> getAll(String name) { return Collections.unmodifiableList(slots.getOrDefault(name, List.of())); }
-
- 
-    public void debugPrint() {
-        for (var e : slots.entrySet()) {
-            System.out.println(e.getKey() + " x" + e.getValue().size());
-        }
-    }
+    public void debugPrint() { for (var e : slots.entrySet()) System.out.println(e.getKey() + " x" + e.getValue().size()); }
 }

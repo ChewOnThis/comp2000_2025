@@ -1,5 +1,5 @@
 public class SpeedPowerup implements Item {
-    public String getName() { return "Speed Powerup"; }
-    public boolean isStackable() { return false; }
+    @Override public String getName() { return "Speed Powerup"; }
+    @Override public boolean isStackable() { return false; }
 }
 

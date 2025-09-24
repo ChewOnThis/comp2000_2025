@@ -11,10 +11,10 @@ public class Player implements Actor {
     private int hp = 10;
 
     // The radius of the player's visual representation (circle).
-    private int radius = (int)(Cell.SIZE * 0.8);
+    private final int radius = (int)(Cell.SIZE * 0.8);
 
     // The color used to draw the player.
-    private Color color = Color.RED;
+    private final Color color = Color.RED;
 
     // The player's inventory
     private final Inventory<Item> inventory = new Inventory<>();
