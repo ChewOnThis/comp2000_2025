@@ -9,12 +9,26 @@ public class DroppedItem implements Renderable {
         this.col = col; this.row = row; this.item = item;
     }
 
+      public DroppedItem(Item item, int col, int row) { this(col, row, item); }
+
     @Override
     public void render(Graphics g, int offsetX, int offsetY) {
-        int x = col * Cell.SIZE + offsetX, y = row * Cell.SIZE + offsetY;
-        g.setColor(Color.MAGENTA);
-        g.fillOval(x + 6, y + 6, Cell.SIZE - 12, Cell.SIZE - 12);
-        g.setColor(Color.BLACK);
-        g.drawString(item.getName(), x + 2, y + Cell.SIZE - 4);
+        int cellX = col * Cell.SIZE + offsetX, cellY = row * Cell.SIZE + offsetY;
+        int size = (int)(Cell.SIZE * 0.6);
+        int x = cellX + (Cell.SIZE - size) / 2;
+        int y = cellY + (Cell.SIZE - size) / 2;
+        if ("Speed Powerup".equals(item.getName())) {
+            g.setColor(Color.YELLOW);
+            g.fillOval(x, y, size, size);
+            g.setColor(Color.RED);
+            g.drawOval(x, y, size, size);
+        } else {
+            g.setColor(Color.MAGENTA);
+            g.fillOval(x, y, size, size);
+        }
+        g.setColor(Color.WHITE);
+        String name = item.getName();
+        int w = g.getFontMetrics().stringWidth(name);
+        g.drawString(name, x + size / 2 - w / 2, y - 4);
     }
 }
