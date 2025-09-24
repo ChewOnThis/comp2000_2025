@@ -1,4 +1,5 @@
 public class SpeedPowerup implements Item {
-    public String id() { return "speed"; }
-    public String label() { return "Speed Powerup"; }
+    public String getName() { return "Speed Powerup"; }
+    public boolean isStackable() { return false; }
 }
+

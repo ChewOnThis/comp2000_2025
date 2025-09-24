@@ -5,8 +5,9 @@ public class DroppedItem implements Renderable {
     public final int col, row;
     public final Item item;
 
-    public DroppedItem(int col, int row, Item item) {
-        this.col = col; this.row = row; this.item = item;
+        public DroppedItem(Item item, int col, int row) {
+        this.item = item;
+        this.col = col; this.row = row;
     }
 
     @Override
@@ -15,6 +16,6 @@ public class DroppedItem implements Renderable {
         g.setColor(Color.MAGENTA);
         g.fillOval(x + 6, y + 6, Cell.SIZE - 12, Cell.SIZE - 12);
         g.setColor(Color.BLACK);
-        g.drawString(item.label(), x + 2, y + Cell.SIZE - 4);
+        g.drawString(item.getName(), x + 2, y + Cell.SIZE - 4);
     }
 }

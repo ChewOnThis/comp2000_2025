@@ -1,4 +1,4 @@
 public interface Item {
-    String id();
-    String label();
+    String getName();
+    boolean isStackable();
 }
