@@ -12,10 +12,8 @@ public class Stage {
     private final int viewCols = 30, viewRows = 22;
     private boolean started = false;
     private boolean showInventory = false;
-    private final EnemyFactory enemyFactory = new EnemyFactory(12345);
     private final List<DroppedItem> drops = new ArrayList<>();
     private final Random rng = new Random(0x9e3779b9);
-    private final Inventory<Item> inventory = new Inventory<>();
 
 
 
@@ -40,7 +38,8 @@ public class Stage {
 
         for (int i = 0; i < 8; i++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
-            drops.add(new DroppedItem((i % 3 == 0) ? new SpeedPowerup() : new Potion(), c, r));
+            // DroppedItem expects (col, row, item)
+            drops.add(new DroppedItem(c, r, (i % 3 == 0) ? new SpeedPowerup() : new Potion()));
         }
 
     }
@@ -52,14 +51,14 @@ public class Stage {
         int nc = player.col() + dc;
         int nr = player.row() + dr;
         if (grid.inBounds(nc, nr)) player.setPosition(nc, nr);
-        for (int i = 0; i < drops.size(); i++) {
-            DroppedItem d = drops.get(i);
-            if (d.col == player.col() && d.row == player.row()) {
-                inventory.add(d.item);
-                drops.remove(i);
-                i--;
-            }
-        }
+       for (int i = 0; i < drops.size(); i++) {
+    DroppedItem d = drops.get(i);
+    if (d.col == player.col() && d.row == player.row()) {
+        player.inventory().add(d.item);
+        drops.remove(i);
+        i--;
+    }
+}
  
     }
 
@@ -69,13 +68,12 @@ public class Stage {
             g.drawString("Press Enter to start. WASD/Arrows to move. I for inventory.", 20, 30);
             return;
         }
-        int offsetX = ww / 2 - player.col() * Cell.SIZE - Cell.SIZE / 2;
-        int offsetY = wh / 2 - player.row() * Cell.SIZE - Cell.SIZE / 2;
-        for (DroppedItem d : drops) d.render(g, offsetX, offsetY);
-
-
-        grid.paint(g, mouse, offsetX, offsetY, viewCols, viewRows, player.col(), player.row());
-        for (Actor a : actors) a.render(g, offsetX, offsetY);
+    int offsetX = ww / 2 - player.col() * Cell.SIZE - Cell.SIZE / 2;
+    int offsetY = wh / 2 - player.row() * Cell.SIZE - Cell.SIZE / 2;
+    // Draw terrain first, then items, then actors so items are not hidden by tiles
+    grid.paint(g, mouse, offsetX, offsetY, viewCols, viewRows, player.col(), player.row());
+    for (DroppedItem d : drops) d.render(g, offsetX, offsetY);
+    for (Actor a : actors) a.render(g, offsetX, offsetY);
 
         if (showInventory) {
             g.setColor(new Color(0, 0, 0, 160));
@@ -83,7 +81,7 @@ public class Stage {
             g.setColor(Color.WHITE);
             g.drawString("Inventory", 16, 28);
             int y = 48;
-            for (var e : inventory.snapshot().entrySet()) {
+            for (var e : player.inventory().snapshot().entrySet()) {
                 g.drawString(e.getKey() + " x" + e.getValue(), 16, y);
                 y += 16;
             }

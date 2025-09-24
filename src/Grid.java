@@ -5,8 +5,6 @@ import java.util.*;
 public class Grid {
     public final int columns, rows;
     public final Cell[][] cells;
-
-    private final int seed;
     private final Noise noiseHigh;
     private final Random rng;
     private final List<Biome> biomes = List.of(
@@ -15,7 +13,6 @@ public class Grid {
 
     public Grid(int columns, int rows, int seed) {
         this.columns = columns; this.rows = rows;
-        this.seed = seed;
         this.noiseHigh = new Noise(seed ^ 0x5bd1e995);
         this.rng = new Random(seed);
         cells = new Cell[columns][rows];
@@ -61,6 +58,9 @@ public class Grid {
     public boolean inBounds(int c, int r) { return c >= 0 && r >= 0 && c < columns && r < rows; }
     public Cell cellAt(int c, int r) { return inBounds(c, r) ? cells[c][r] : null; }
 
+     public Optional<Cell> cellAtOpt(int c, int r) {
+        return inBounds(c, r) ? Optional.of(cells[c][r]) : Optional.empty();
+    }
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY, int viewCols, int viewRows, int focusCol, int focusRow) {
         int startC = Math.max(0, focusCol - viewCols / 2 - 1);
         int endC   = Math.min(columns, focusCol + viewCols / 2 + 2);

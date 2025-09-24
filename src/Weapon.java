@@ -1,4 +1,5 @@
-public interface Weapon extends Item {
-    int damage();
-    default String label() { return "Weapon"; }
+public class Weapon implements Item { 
+    public String getName() { return "Sword"; } 
+    public boolean isStackable() { return false; } 
 }
+   
