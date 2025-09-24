@@ -26,15 +26,16 @@ public class Stage {
         actors.add(new Cat(grid.cellAt(5, 7)));
         actors.add(new Bird(grid.cellAt(10, 10)));
         for (int i = 0; i < 24; i++) {
-    int c = rng.nextInt(cols), r = rng.nextInt(rows);
-    Terrain t = grid.cellAt(c, r).getTerrain();
-    Enemy e = switch (t) {
-        case GRASS -> new SlimeEnemy(c, r);
-        case SAND  -> new ScorpionEnemy(c, r);
-        case WATER -> new PiranhaEnemy(c, r);
-    };
-    actors.add(e);
-}
+            int c = rng.nextInt(cols), r = rng.nextInt(rows);
+            Terrain t = grid.cellAt(c, r).getTerrain();
+            Enemy e = switch (t) {
+                case GRASS -> new SlimeEnemy(c, r);
+                case SAND  -> new ScorpionEnemy(c, r);
+                case WATER -> new PiranhaEnemy(c, r);
+                case FOREST -> new WolfEnemy(c, r);
+            };
+            actors.add(e);
+        }
 
         for (int i = 0; i < 8; i++) {
     int c = rng.nextInt(cols), r = rng.nextInt(rows);

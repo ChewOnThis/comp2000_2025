@@ -21,7 +21,8 @@ public class Cell {
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY) {
         int x = col * SIZE + offsetX;
         int y = row * SIZE + offsetY;
-        g.setColor(terrain.getColour());
+        g.setColor(terrain.getColor());
+        
         g.fillRect(x, y, SIZE, SIZE);
         g.setColor(Color.DARK_GRAY);
         g.drawRect(x, y, SIZE, SIZE);

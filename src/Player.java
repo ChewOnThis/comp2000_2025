@@ -14,6 +14,7 @@ public class Player implements Actor {
     @Override public void setPosition(int c, int r) { this.col = c; this.row = r; }
     @Override public boolean isDead() { return hp <= 0; }
     @Override public void damage(int d) { hp -= d; }
+     @Override public void update(double dt) { }
 
     @Override
     public void render(Graphics g, int offsetX, int offsetY) {

@@ -1,2 +1,3 @@
-public interface Updatable { default void update(Grid grid) {} }
-    
+public interface Updatable {
+    void update(double dt);
+}

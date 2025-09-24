@@ -1,4 +1,3 @@
-import java.awt.Graphics;
 
 public interface Actor extends Renderable, Updatable {
     int col();
@@ -6,5 +5,5 @@ public interface Actor extends Renderable, Updatable {
     void setPosition(int c, int r);
     boolean isDead();
     void damage(int d);
-    @Override void render(Graphics g, int offsetX, int offsetY);
 }
+
