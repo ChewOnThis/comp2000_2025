@@ -1,4 +1,4 @@
-// Water biome: watery regions; piranhas dominate.
+// Water biome: watery regions; piranhas only.
 import java.awt.Color;
 import java.util.Map;
 

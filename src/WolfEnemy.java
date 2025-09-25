@@ -1,4 +1,4 @@
-// WolfEnemy: fast predator found mainly in forest and grassland.
+// found mainly in forest and grassland.
 import java.awt.Color;
 public class WolfEnemy extends Enemy {
     public WolfEnemy(int c, int r) { super(c, r); this.color = Color.CYAN; }
