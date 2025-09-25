@@ -33,9 +33,16 @@ public class Cell {
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY) {
         int x = col * SIZE + offsetX;
         int y = row * SIZE + offsetY;
-        g.setColor(terrain.color);
+        // Use biome color if present; otherwise terrain color
+        Color base = biome != null ? biome.color() : terrain.color;
+        g.setColor(base);
         g.fillRect(x, y, SIZE, SIZE);
-        g.setColor(Color.DARK_GRAY);
+
+        // Subtle darker, translucent border to make grid more readable
+        int rr = (int)(base.getRed() * 0.6);
+        int gg = (int)(base.getGreen() * 0.6);
+        int bb = (int)(base.getBlue() * 0.6);
+        g.setColor(new Color(rr, gg, bb, 120));
         g.drawRect(x, y, SIZE, SIZE);
     }
 }

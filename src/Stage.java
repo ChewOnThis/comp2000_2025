@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Stage {
-    private Grid grid;
+    private Grid grid; 
     private final Player player;
     private final List<Actor> actors = new ArrayList<>();
     private final List<DroppedItem> drops = new ArrayList<>();
@@ -15,27 +15,32 @@ public class Stage {
     private boolean started = false;
     private boolean showInventory = false;
     private final Random rng = new Random(0x9e3779b9);
+    private final EnemyFactory enemyFactory;
+
+     
+    public boolean hasSpeedPowerup = false; 
+    private DroppedItem speedPowerup = null;
+    private boolean ended = false;
+    private long startTime = 0L, endTime = 0L;
 
     public Stage(int cols, int rows, int seed) {
         this.grid = new Grid(cols, rows, seed);
         this.player = new Player(cols / 2, rows / 2);
+        this.enemyFactory = new EnemyFactory(seed); 
         actors.add(player);
         for (int i = 0; i < 24; i++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
-            Terrain t = grid.cellAt(c, r).getTerrain();
-            Enemy e = switch (t) {
-                case GRASS -> new SlimeEnemy(c, r);
-                case SAND  -> new ScorpionEnemy(c, r);
-                case WATER -> new PiranhaEnemy(c, r);
-                case FOREST -> new WolfEnemy(c, r);
-            };
+            if (!grid.passable(c, r)) { i--; continue; } 
+            Biome b = grid.cellAt(c, r).getBiome();
+            String type = enemyFactory.pickWeighted(b.enemyWeights());
+            Enemy e = enemyFactory.create(type, c, r, b.name());
             actors.add(e);
         }
 
         for (int i = 0; i < 8; i++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
             Item item = (i % 3 == 0) ? new SpeedPowerup() : new Potion();
-            drops.add(new DroppedItem(c, r, item));
+            drops.add(new DroppedItem(item, c, r));
         }
     }
 
@@ -58,10 +63,10 @@ public class Stage {
         }
     }
 
-    // new: convenience alias used by improved input
+
     public void movePlayerBy(int dc, int dr) { movePlayer(dc, dr); }
 
-    // new: pick up items within radius 1 (including diagonals and current cell)
+ 
     public void pickupHere() {
         int px = player.col(), py = player.row();
         int[][] dirs = {
@@ -81,14 +86,14 @@ public class Stage {
         }
     }
 
-    // new: attack all adjacent and same-cell enemies; drop a basic item on kill
+ 
     public void attack() {
         int px = player.col(), py = player.row();
         int[][] dirs = {
             {0,0},{1,0},{-1,0},{0,1},{0,-1},
             {1,1},{1,-1},{-1,1},{-1,-1}
         };
-        // apply damage
+ 
         for (Actor a : actors) {
             if (a instanceof Enemy e) {
                 for (int[] dir : dirs) {
@@ -100,7 +105,7 @@ public class Stage {
                 }
             }
         }
-        // remove dead enemies and drop loot
+
         Iterator<Actor> it = actors.iterator();
         while (it.hasNext()) {
             Actor a = it.next();
@@ -111,40 +116,37 @@ public class Stage {
         }
     }
 
-    // new: regenerate world, reposition player, respawn enemies and items
+   
     public void resetWorld() {
         int cols = grid.columns, rows = grid.rows;
         int seed = (int)(System.currentTimeMillis() & 0x7fffffff);
-        Grid newGrid = new Grid(cols, rows, seed);
-        // swap in the new grid
-        this.grid = newGrid;
-
-        // reset actors and drops; keep the same player object
+        this.grid = new Grid(cols, rows, seed);
         this.actors.clear();
         this.drops.clear();
         this.player.setPosition(cols / 2, rows / 2);
         this.actors.add(player);
 
         Random local = new Random(seed ^ 0x9e3779b9);
+        EnemyFactory localFactory = new EnemyFactory(seed);
         for (int i = 0; i < 24; i++) {
             int c = local.nextInt(cols), r = local.nextInt(rows);
-            Terrain t = grid.cellAt(c, r).getTerrain();
-            Enemy e = switch (t) {
-                case GRASS -> new SlimeEnemy(c, r);
-                case SAND  -> new ScorpionEnemy(c, r);
-                case WATER -> new PiranhaEnemy(c, r);
-                case FOREST -> new WolfEnemy(c, r);
-            };
+            if (!grid.passable(c, r)) { i--; continue; }
+            Biome b = grid.cellAt(c, r).getBiome();
+            String type = localFactory.pickWeighted(b.enemyWeights());
+            Enemy e = localFactory.create(type, c, r, b.name());
             actors.add(e);
         }
         for (int i = 0; i < 8; i++) {
             int c = local.nextInt(cols), r = local.nextInt(rows);
             Item item = (i % 3 == 0) ? new SpeedPowerup() : new Potion();
-            drops.add(new DroppedItem(c, r, item));
+            drops.add(new DroppedItem(item, c, r));
         }
     }
 
-    // removed invalid changeCellSize; Cell.SIZE is a constant in this project
+
+    public void changeCellSize(int newSize) {
+        Cell.SIZE = Math.max(6, newSize);
+    }
 
     public void paint(Graphics g, Point mouse, int ww, int wh) {
         if (!started) {
@@ -155,7 +157,6 @@ public class Stage {
         int offsetX = ww / 2 - player.col() * Cell.SIZE - Cell.SIZE / 2;
         int offsetY = wh / 2 - player.row() * Cell.SIZE - Cell.SIZE / 2;
 
-        // Draw terrain first, then items, then actors so items are not hidden by tiles
         grid.paint(g, mouse, offsetX, offsetY, viewCols, viewRows, player.col(), player.row());
         for (DroppedItem d : drops) d.render(g, offsetX, offsetY);
         for (Actor a : actors) a.render(g, offsetX, offsetY);
@@ -173,3 +174,4 @@ public class Stage {
         }
     }
 }
+       

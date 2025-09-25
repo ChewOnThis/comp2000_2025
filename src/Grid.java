@@ -38,7 +38,10 @@ public class Grid {
                     if (d2 < bestD2) { bestD2 = d2; best = i; }
                 }
                 cells[c][r] = new Cell(c, r);
-                cells[c][r].setTerrain(centreBiome[best].baseTerrain());
+                // assign biome and its base terrain
+                Biome b = centreBiome[best];
+                cells[c][r].setBiome(b);
+                cells[c][r].setTerrain(b.baseTerrain());
             }
         }
 
@@ -47,6 +50,8 @@ public class Grid {
                 double v = noiseHigh.value(c * 3, r * 3);
                 if (v > 0.62) {
                     cells[c][r].setTerrain(Terrain.WATER);
+                    // make noisy water patches belong to the water biome for correct spawns
+                    cells[c][r].setBiome(new WaterBiome());
                 }
             }
         }
