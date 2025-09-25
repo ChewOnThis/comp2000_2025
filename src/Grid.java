@@ -3,79 +3,101 @@ import java.awt.Point;
 import java.util.*;
 
 public class Grid {
-    public final int columns, rows;
+    public final int cols, rows;
     public final Cell[][] cells;
-    private final Noise noiseHigh;
-    private final Random rng;
-    private final List<Biome> biomes = List.of(
+    private final List<Biome> biomeChoices = List.of(
         new GrasslandBiome(), new DesertBiome(), new WaterBiome(), new ForestBiome()
     );
+    private final Random rng;
+    private final Noise noiseHigh;
+    private final int cellSize = Cell.SIZE;
+    private List<Point> centers;
+    private Map<Integer, Biome> centerBiome;
 
-    public Grid(int columns, int rows, int seed) {
-        this.columns = columns; this.rows = rows;
-        this.noiseHigh = new Noise(seed ^ 0x5bd1e995);
+    public Grid(int cols, int rows, int seed) {
+        this.cols = cols; this.rows = rows;
         this.rng = new Random(seed);
-        cells = new Cell[columns][rows];
+        this.noiseHigh = new Noise(seed ^ 0x5bd1e995);
+        this.cells = new Cell[cols][rows];
         generate();
     }
 
+    public void regenerate(int newSeed) {
+    // Re seed by constructing a new Grid and copying over generated state
+        Grid g2 = new Grid(cols, rows, newSeed);
+        for (int c=0;c<cols;c++) {
+            System.arraycopy(g2.cells[c], 0, cells[c], 0, rows);
+        }
+        centers = g2.centers; centerBiome = g2.centerBiome;
+    }
+
     private void generate() {
-        int k = Math.max(6, (columns * rows) / 500);
-        Point[] centres = new Point[k];
-        Biome[] centreBiome = new Biome[k];
-        for (int i = 0; i < k; i++) {
-            centres[i] = new Point(rng.nextInt(columns), rng.nextInt(rows));
-            centreBiome[i] = biomes.get(rng.nextInt(biomes.size()));
+        int nCenters = Math.max(4, (cols*rows) / 800);
+        nCenters = Math.min(nCenters, cols * rows);
+        if (nCenters <= 0) nCenters = 4;
+        centers = new ArrayList<>();
+        centerBiome = new HashMap<>();
+        for (int i=0;i<nCenters;i++) {
+            int c = rng.nextInt(Math.max(1, cols)), r = rng.nextInt(Math.max(1, rows));
+            centers.add(new Point(c, r));
+            Biome b = biomeChoices.get(rng.nextInt(biomeChoices.size()));
+            centerBiome.put(i, b);
         }
 
-        for (int c = 0; c < columns; c++) {
-            for (int r = 0; r < rows; r++) {
-                int best = 0;
-                double bestD2 = Double.POSITIVE_INFINITY;
-                for (int i = 0; i < k; i++) {
-                    int dx = c - centres[i].x, dy = r - centres[i].y;
-                    double d2 = dx * dx + dy * dy;
-                    if (d2 < bestD2) { bestD2 = d2; best = i; }
-                }
-                cells[c][r] = new Cell(c, r);
-                // assign biome and its base terrain
-                Biome b = centreBiome[best];
-                cells[c][r].setBiome(b);
-                cells[c][r].setTerrain(b.baseTerrain());
+        int[][] owner = new int[cols][rows];
+        int[][] second = new int[cols][rows];
+        for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
+            double best = Double.MAX_VALUE, snd = Double.MAX_VALUE; int bi=-1, si=-1;
+            for (int i=0;i<centers.size();i++) {
+                Point p = centers.get(i);
+                double d = dist2(c, r, p.x, p.y);
+                if (d < best) { snd = best; si = bi; best = d; bi = i; }
+                else if (d < snd) { snd = d; si = i; }
             }
+            owner[c][r] = bi; second[c][r] = si;
         }
 
-        for (int c = 1; c < columns - 1; c++) {
-            for (int r = 1; r < rows - 1; r++) {
-                double v = noiseHigh.value(c * 3, r * 3);
-                if (v > 0.62) {
-                    cells[c][r].setTerrain(Terrain.WATER);
-                    // make noisy water patches belong to the water biome for correct spawns
-                    cells[c][r].setBiome(new WaterBiome());
-                }
+        for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
+            Biome b = centerBiome.get(owner[c][r]);
+            cells[c][r] = new Cell(c, r, c*cellSize, r*cellSize, b.baseTerrain(), b);
+        }
+
+        for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
+            int o = owner[c][r];
+            boolean near = false;
+            for (int dc=-1; dc<=1 && !near; dc++) for (int dr=-1; dr<=1; dr++) {
+                if (dc==0&&dr==0) continue;
+                int nc=c+dc, nr=r+dr; if (inBounds(nc,nr) && owner[nc][nr]!=o) { near=true; break; }
+            }
+            if (!near) continue;
+            double v = noiseHigh.value(c*3, r*3);
+            if (v > 0.58) {
+                int s = second[c][r];
+                Biome b2 = centerBiome.get(s);
+                cells[c][r].setBiome(b2);
+                cells[c][r].setTerrain(b2.baseTerrain());
             }
         }
     }
 
-    public boolean inBounds(int c, int r) { return c >= 0 && r >= 0 && c < columns && r < rows; }
-    public Cell cellAt(int c, int r) { return inBounds(c, r) ? cells[c][r] : null; }
+    private boolean inBounds(int c,int r){return c>=0&&r>=0&&c<cols&&r<rows;}
+    private double dist2(int ax,int ay,int bx,int by){int dx=ax-bx,dy=ay-by; return dx*dx+dy*dy;}
 
-     public Optional<Cell> cellAtOpt(int c, int r) {
-        return inBounds(c, r) ? Optional.of(cells[c][r]) : Optional.empty();
+    public Optional<Cell> cellAt(int c,int r){
+        if(!inBounds(c,r)) return Optional.empty();
+        return Optional.of(cells[c][r]);
     }
+
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY, int viewCols, int viewRows, int focusCol, int focusRow) {
-        int startC = Math.max(0, focusCol - viewCols / 2 - 1);
-        int endC   = Math.min(columns, focusCol + viewCols / 2 + 2);
-        int startR = Math.max(0, focusRow - viewRows / 2 - 1);
-        int endR   = Math.min(rows, focusRow + viewRows / 2 + 2);
-        for (int c = startC; c < endC; c++) {
-            for (int r = startR; r < endR; r++) {
-                cells[c][r].paint(g, mouse, offsetX, offsetY);
-            }
+        int startC = Math.max(0, focusCol - viewCols/2 - 1);
+        int endC   = Math.min(cols, focusCol + viewCols/2 + 2);
+        int startR = Math.max(0, focusRow - viewRows/2 - 1);
+        int endR   = Math.min(rows, focusRow + viewRows/2 + 2);
+        for (int c=startC;c<endC;c++) for (int r=startR;r<endR;r++) {
+            Cell cell = cells[c][r];
+            g.translate(offsetX, offsetY);
+            cell.paint(g, mouse);
+            g.translate(-offsetX, -offsetY);
         }
-    }
-
-    public boolean passable(int c, int r) {
-        return inBounds(c, r) && cells[c][r].passable();
     }
 }

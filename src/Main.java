@@ -10,7 +10,7 @@ public class Main extends JFrame {
     class Canvas extends JPanel {
         private Stage stage;
         private final Set<Integer> pressed = new HashSet<>();
-        private Timer moveTimer;
+    private final Timer moveTimer;
 
         Canvas() {
             setPreferredSize(new Dimension(800, 600));
@@ -51,7 +51,9 @@ public class Main extends JFrame {
                             String in = JOptionPane.showInputDialog(Main.this, "New cell size:", Integer.toString(Cell.SIZE));
                             try {
                                 if (in != null) stage.changeCellSize(Math.max(6, Integer.parseInt(in.trim())));
-                            } catch (Exception ignore) {}
+                            } catch (NumberFormatException ignore) {
+                                // ignore invalid input
+                            }
                             repaint();
                         }
                     }

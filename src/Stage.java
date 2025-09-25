@@ -28,19 +28,25 @@ public class Stage {
         this.player = new Player(cols / 2, rows / 2);
         this.enemyFactory = new EnemyFactory(seed); // new
         actors.add(player);
+        // spawn enemies based on biome weights on passable cells
         for (int i = 0; i < 24; i++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
-            if (!grid.passable(c, r)) { i--; continue; } // ensure spawn on passable
-            Biome b = grid.cellAt(c, r).getBiome();
+            var cellOpt = grid.cellAt(c, r);
+            if (cellOpt.isEmpty() || !cellOpt.get().passable()) { i--; continue; }
+            Biome b = cellOpt.get().getBiome();
             String type = enemyFactory.pickWeighted(b.enemyWeights());
             Enemy e = enemyFactory.create(type, c, r, b.name());
             actors.add(e);
         }
 
+        // spawn ground items on passable cells
         for (int i = 0; i < 8; i++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
-            Item item = (i % 3 == 0) ? new SpeedPowerup() : new Potion();
-            drops.add(new DroppedItem(item, c, r));
+            var cellOpt = grid.cellAt(c, r);
+            if (cellOpt.isPresent() && cellOpt.get().passable()) {
+                Item item = (i % 3 == 0) ? new SpeedPowerup() : new Potion();
+                drops.add(new DroppedItem(c, r, item));
+            } else { i--; }
         }
 
         // spawn a single distinct speed powerup instance
@@ -50,8 +56,8 @@ public class Stage {
     private void spawnSpeedPowerup(int cols, int rows) {
         for (int tries = 0; tries < 200; tries++) {
             int c = rng.nextInt(cols), r = rng.nextInt(rows);
-            if (grid.passable(c, r)) {
-                speedPowerup = new DroppedItem(new SpeedPowerup(), c, r);
+            if (grid.cellAt(c, r).map(Cell::passable).orElse(false)) {
+                speedPowerup = new DroppedItem(c, r, new SpeedPowerup());
                 break;
             }
         }
@@ -78,7 +84,7 @@ public class Stage {
         if (!started || ended) return;
         int nc = player.col() + dc;
         int nr = player.row() + dr;
-        if (grid.passable(nc, nr)) {
+        if (grid.cellAt(nc, nr).map(Cell::passable).orElse(false)) {
             player.setPosition(nc, nr);
         }
         for (int i = 0; i < drops.size(); i++) {
@@ -177,7 +183,7 @@ public class Stage {
 
     // regenerate world, reset state, respawn enemies, items, and powerup
     public void resetWorld() {
-        int cols = grid.columns, rows = grid.rows;
+        int cols = grid.cols, rows = grid.rows;
         int seed = (int)(System.currentTimeMillis() & 0x7fffffff);
         this.grid = new Grid(cols, rows, seed);
         this.actors.clear();
@@ -193,8 +199,9 @@ public class Stage {
         EnemyFactory localFactory = new EnemyFactory(seed);
         for (int i = 0; i < 24; i++) {
             int c = local.nextInt(cols), r = local.nextInt(rows);
-            if (!grid.passable(c, r)) { i--; continue; }
-            Biome b = grid.cellAt(c, r).getBiome();
+            var cellOpt = grid.cellAt(c, r);
+            if (cellOpt.isEmpty() || !cellOpt.get().passable()) { i--; continue; }
+            Biome b = cellOpt.get().getBiome();
             String type = localFactory.pickWeighted(b.enemyWeights());
             Enemy e = localFactory.create(type, c, r, b.name());
             actors.add(e);
@@ -260,7 +267,8 @@ public class Stage {
         g.fillRect(infoX, infoY, infoW, infoH);
         g.setColor(Color.WHITE);
         g.drawString("Pos: (" + player.col() + "," + player.row() + ")", infoX + 10, infoY + 22);
-        String bname = grid.cellAt(player.col(), player.row()).getBiome().name();
+        String bname = grid.cellAt(player.col(), player.row())
+            .map(Cell::getBiome).map(Biome::name).orElse("?");
         g.drawString("Biome: " + bname, infoX + 10, infoY + 38);
         if (startTime != 0L) {
             long now = System.currentTimeMillis();
