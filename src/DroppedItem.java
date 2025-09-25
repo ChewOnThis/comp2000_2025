@@ -1,15 +1,20 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
+// DroppedItem represents an item lying on the ground in the world.
+// Implements Renderable for drawing itself.
 public class DroppedItem implements Renderable {
-    public final int col, row;
+    // The item being dropped.
     public final Item item;
+    // The column and row position of the drop.
+    public int col, row;
 
+    // Constructor: initializes the dropped item and its position.
     public DroppedItem(int col, int row, Item item) {
         this.col = col; this.row = row; this.item = item;
     }
 
-   
+    // Alternative constructor that accepts parameters in a different order.
     public DroppedItem(Item item, int col, int row) { this(col, row, item); }
 
     @Override
@@ -24,8 +29,10 @@ public class DroppedItem implements Renderable {
             g.setColor(Color.RED);
             g.drawOval(x, y, size, size);
         } else {
-            g.setColor(Color.MAGENTA);
+            g.setColor(Color.ORANGE);
             g.fillOval(x, y, size, size);
+            g.setColor(Color.BLACK);
+            g.drawOval(x, y, size, size);
         }
         g.setColor(Color.WHITE);
         String name = item.getName();
@@ -33,3 +40,4 @@ public class DroppedItem implements Renderable {
         g.drawString(name, x + size / 2 - w / 2, y - 4);
     }
 }
+

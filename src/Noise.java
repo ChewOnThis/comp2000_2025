@@ -1,8 +1,8 @@
 public final class Noise {
-    // Used for biome blending and terrain variation.
+    
     private final int seed;
     public Noise(int seed) { this.seed = seed; }
-    // Hash function! Psuedo-random integer
+    
     private int hash(int x, int y) {
         int h = seed ^ (x * 374761393) ^ (y * 668265263);
         h = (h ^ (h >>> 13)) * 1274126177;
