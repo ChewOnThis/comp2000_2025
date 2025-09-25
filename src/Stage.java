@@ -345,52 +345,83 @@ public class Stage {
     }
 
     private void drawIntro(Graphics g, int windowW, int windowH) {
-        // Semi-transparent overlay with how-to-play and feature list.
+        // Semi-transparent overlay with how-to-play and feature list in two columns.
         g.setColor(new Color(0,0,0,200));
         g.fillRect(0, 0, windowW, windowH);
         g.setColor(Color.WHITE);
-        int y = 60;
-        g.setFont(g.getFont().deriveFont(28f));
-        g.drawString("Welcome to Inhale of the Wilderness!", 60, y); y += 40;
+
+        // Title centered
+        Font title = g.getFont().deriveFont(28f);
+        g.setFont(title);
+        String titleText = "Welcome to Inhale of the Wilderness!";
+        int tw = g.getFontMetrics().stringWidth(titleText);
+        g.drawString(titleText, Math.max(20, (windowW - tw) / 2), 60);
+
+        // Subtitle centered
+        Font sub = g.getFont().deriveFont(18f);
+        g.setFont(sub);
+        String subText = "How to Play & Features";
+        int sw = g.getFontMetrics().stringWidth(subText);
+        g.drawString(subText, Math.max(20, (windowW - sw) / 2), 90);
+
+        // Column positions
+        int leftX = 60;
+        int rightX = windowW / 2 + 40;
+        int yL = 120;
+        int yR = 120;
+
+        // Body font
+        Font body = g.getFont().deriveFont(12f);
+        g.setFont(body);
+
+        // Left column content
+        g.drawString("Objective:", leftX, yL); yL += 22;
+        g.drawString(" - Defeat all enemies and collect all items to win.", leftX + 20, yL); yL += 20;
+        g.drawString(" - Explore a procedurally generated world with multiple biomes.", leftX + 20, yL); yL += 20;
+        g.drawString(" - Each biome has unique enemies and item drops.", leftX + 20, yL); yL += 20;
+        g.drawString(" - Collect loot and powerups to increase your score.", leftX + 20, yL); yL += 26;
+
+        g.drawString("Player & Movement:", leftX, yL); yL += 22;
+        g.drawString(" - Move with Arrow keys or WASD (hold for diagonal).", leftX + 20, yL); yL += 20;
+        g.drawString(" - Movement is step-by-step until you collect the Speed Powerup.", leftX + 20, yL); yL += 20;
+        g.drawString(" - After collecting Speed Powerup, movement becomes smooth and 1.5x faster.", leftX + 20, yL); yL += 20;
+        g.drawString(" - A translucent red triangle trail follows your movement, fading over time.", leftX + 20, yL); yL += 26;
+
+        g.drawString("Combat & Enemies:", leftX, yL); yL += 22;
+        g.drawString(" - Press SPACE to attack all adjacent and same-cell enemies.", leftX + 20, yL); yL += 20;
+        g.drawString(" - Enemies are 1 hit to defeat and drop biome-appropriate loot.", leftX + 20, yL); yL += 20;
+        g.drawString(" - Enemy types and drops vary by biome (e.g., Scorpion in Desert, Wolf in Forest).", leftX + 20, yL); yL += 26;
+
+        // Right column content
+        g.drawString("Items & Inventory:", rightX, yR); yR += 22;
+        g.drawString(" - Press F to pick up items in adjacent cells (radius 1, including diagonals).", rightX + 20, yR); yR += 20;
+        g.drawString(" - Press E to open/close your inventory.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Items are stackable or unique, and each has a score value.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Speed Powerup is a special item that increases movement speed.", rightX + 20, yR); yR += 26;
+
+        g.drawString("World & Map:", rightX, yR); yR += 22;
+        g.drawString(" - The world is a grid of cells, each with a biome and terrain type.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Biomes include Grassland, Desert, Water, and Forest.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Press M to change map size and cell pixel size (prompted in menu).", rightX + 20, yR); yR += 20;
+        g.drawString(" - Press R (hold for 1 second) to reset the world.", rightX + 20, yR); yR += 26;
+
+        g.drawString("Visuals & UI:", rightX, yR); yR += 22;
+        g.drawString(" - Each cell has a colored border matching its biome.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Enemies and items display nameplates above them.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Info box shows position, biome, elapsed time, and powerup status.", rightX + 20, yR); yR += 20;
+        g.drawString(" - The clock and UI update continuously.", rightX + 20, yR); yR += 26;
+
+        g.drawString("Advanced Features:", rightX, yR); yR += 22;
+        g.drawString(" - Inventory uses generics and supports stacking.", rightX + 20, yR); yR += 20;
+        g.drawString(" - Cell, Actor, Item, and Biome use interfaces and inheritance.", rightX + 20, yR); yR += 20;
+        g.drawString(" - The grid and biomes are generated using procedural noise.", rightX + 20, yR); yR += 20;
+        g.drawString(" - The code demonstrates Java proficiency, inheritance, interfaces, and generics.", rightX + 20, yR); yR += 20;
+
+        // Footer centered
         g.setFont(g.getFont().deriveFont(18f));
-        g.drawString("How to Play & Features:", 60, y); y += 30;
-        g.setFont(g.getFont().deriveFont(15f));
-        g.drawString("Objective:", 60, y); y += 22;
-        g.drawString(" - Defeat all enemies and collect all items to win.", 80, y); y += 20;
-        g.drawString(" - Explore a procedurally generated world with multiple biomes.", 80, y); y += 20;
-        g.drawString(" - Each biome has unique enemies and item drops.", 80, y); y += 20;
-        g.drawString(" - Collect loot and powerups to increase your score.", 80, y); y += 20;
-        g.drawString("Player & Movement:", 60, y); y += 22;
-        g.drawString(" - Move with Arrow keys or WASD (hold for diagonal).", 80, y); y += 20;
-        g.drawString(" - Movement is step-by-step until you collect the Speed Powerup.", 80, y); y += 20;
-        g.drawString(" - After collecting Speed Powerup, movement becomes smooth and 1.5x faster.", 80, y); y += 20;
-        g.drawString(" - A translucent red triangle trail follows your movement, fading over time.", 80, y); y += 20;
-        g.drawString("Combat & Enemies:", 60, y); y += 22;
-        g.drawString(" - Press SPACE to attack all adjacent and same-cell enemies.", 80, y); y += 20;
-        g.drawString(" - Enemies are 1 hit to defeat and drop biome-appropriate loot.", 80, y); y += 20;
-        g.drawString(" - Enemy types and drops vary by biome (e.g., Scorpion in Desert, Wolf in Forest).", 80, y); y += 20;
-        g.drawString("Items & Inventory:", 60, y); y += 22;
-        g.drawString(" - Press F to pick up items in adjacent cells (radius 1, including diagonals).", 80, y); y += 20;
-        g.drawString(" - Press E to open/close your inventory.", 80, y); y += 20;
-        g.drawString(" - Items are stackable or unique, and each has a score value.", 80, y); y += 20;
-        g.drawString(" - Speed Powerup is a special item that increases movement speed.", 80, y); y += 20;
-        g.drawString("World & Map:", 60, y); y += 22;
-        g.drawString(" - The world is a grid of cells, each with a biome and terrain type.", 80, y); y += 20;
-        g.drawString(" - Biomes include Grassland, Desert, Water, and Forest.", 80, y); y += 20;
-        g.drawString(" - Press M to change map size and cell pixel size (prompted in menu).", 80, y); y += 20;
-        g.drawString(" - Press R (hold for 1 second) to reset the world.", 80, y); y += 20;
-        g.drawString("Visuals & UI:", 60, y); y += 22;
-        g.drawString(" - Each cell has a colored border matching its biome.", 80, y); y += 20;
-        g.drawString(" - Enemies and items display nameplates above them.", 80, y); y += 20;
-        g.drawString(" - Info box shows position, biome, elapsed time, and powerup status.", 80, y); y += 20;
-        g.drawString(" - The clock and UI update continuously.", 80, y); y += 20;
-        g.drawString("Advanced Features:", 60, y); y += 22;
-        g.drawString(" - Inventory uses generics and supports stacking.", 80, y); y += 20;
-        g.drawString(" - Cell, Actor, Item, and Biome use interfaces and inheritance.", 80, y); y += 20;
-        g.drawString(" - The grid and biomes are generated using procedural noise.", 80, y); y += 20;
-        g.drawString(" - The code demonstrates Java proficiency, inheritance, interfaces, and generics.", 80, y); y += 20;
-        g.setFont(g.getFont().deriveFont(18f));
-        g.drawString("Press ENTER to start your adventure!", 60, y+30);
+        String footer = "Press ENTER to start your adventure!";
+        int fw = g.getFontMetrics().stringWidth(footer);
+        g.drawString(footer, Math.max(20, (windowW - fw) / 2), Math.max(yL, yR) + 30);
     }
 
     private void drawEnding(Graphics g, int windowW, int windowH) {
