@@ -10,8 +10,11 @@ public class Player implements Actor {
     // The player's health points.
     private int hp = 10;
 
+    // The player's radius.
+    private int radius = (int)(Cell.SIZE * 0.8);
+
     // The color used to draw the player.
-    private final Color color = Color.RED;
+    private Color color = Color.RED;
 
     // The player's inventory of items.
     private final Inventory<Item> inventory = new Inventory<>();
@@ -47,7 +50,6 @@ public class Player implements Actor {
     public void render(Graphics g, int offsetX, int offsetY) {
         int cx = col * Cell.SIZE + Cell.SIZE/2 + offsetX;
         int cy = row * Cell.SIZE + Cell.SIZE/2 + offsetY;
-        int radius = (int)(Cell.SIZE * 0.8); // compute dynamically
         g.setColor(color);
         g.fillOval(cx - radius/2, cy - radius/2, radius, radius);
         g.setColor(Color.BLACK);
@@ -57,6 +59,7 @@ public class Player implements Actor {
     // Update method (not used, but required by Actor interface).
     @Override
     public void update(double dt) {}
+
     
     // Returns the player's inventory.
     public Inventory<Item> inventory() { return inventory; }

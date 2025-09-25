@@ -1,8 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-// DroppedItem represents an item lying on the ground in the world.
-// Implements Renderable for drawing itself.
 public class DroppedItem implements Renderable {
     // The item being dropped.
     public final Item item;

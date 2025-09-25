@@ -5,75 +5,156 @@ import java.util.Set;
 import javax.swing.*;
 
 public class Main extends JFrame {
-    public static void main(String[] args) { SwingUtilities.invokeLater(() -> new Main().run()); }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Main().run());
+    }
 
     class Canvas extends JPanel {
-        private Stage stage;
-        private final Set<Integer> pressed = new HashSet<>();
-    private final Timer moveTimer;
+        Stage stage;
+        private final Set<Integer> pressedKeys = new HashSet<>();
+        private long rPressedTime = 0;
+        private boolean rResetTriggered = false;
+        private Timer movementTimer;
 
-        Canvas() {
-            setPreferredSize(new Dimension(800, 600));
+        public Canvas(int worldCols, int worldRows) {
+            setPreferredSize(new Dimension(1000, 1000));
             setFocusable(true);
-            requestFocusInWindow();
 
-            int worldCols = 50,worldRows = 50;
-            int seed = (int)(System.currentTimeMillis() & 0x7fffffff);
+            stage = new Stage(worldCols, worldRows);
 
-            stage = new Stage(worldCols, worldRows, seed);
+            new Timer(50, e -> {
+                if (pressedKeys.contains(KeyEvent.VK_R) && rPressedTime != 0 && !rResetTriggered) {
+                    long held = System.currentTimeMillis() - rPressedTime;
+                    if (held >= 1000) {
+                        stage.resetWorld();
+                        repaint();
+                        rResetTriggered = true;
+                    }
+                }
+            }).start();
 
-            // Smooth movement when speed powerup is active
-            moveTimer = new Timer(12, e -> {
+            movementTimer = new Timer(10, e -> {
+                if (stage == null) return;
                 if (!stage.hasSpeedPowerup) return;
                 int dc = 0, dr = 0;
-                if (pressed.contains(KeyEvent.VK_A) || pressed.contains(KeyEvent.VK_LEFT)) dc -= 1;
-                if (pressed.contains(KeyEvent.VK_D) || pressed.contains(KeyEvent.VK_RIGHT)) dc += 1;
-                if (pressed.contains(KeyEvent.VK_W) || pressed.contains(KeyEvent.VK_UP)) dr -= 1;
-                if (pressed.contains(KeyEvent.VK_S) || pressed.contains(KeyEvent.VK_DOWN)) dr += 1;
-                if (dc != 0 || dr != 0) { stage.movePlayerBy(dc, dr); repaint(); }
+                if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_A)) dc -= 1;
+                if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) dc += 1;
+                if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_W)) dr -= 1;
+                if (pressedKeys.contains(KeyEvent.VK_DOWN) || pressedKeys.contains(KeyEvent.VK_S)) dr += 1;
+                if (dc != 0 || dr != 0) {
+                    stage.movePlayerBy(dc, dr);
+                    repaint();
+                }
             });
-            moveTimer.start();
+            movementTimer.start();
+
+            new Timer(1000 / 30, e -> repaint()).start();
 
             addKeyListener(new KeyAdapter() {
-                @Override public void keyPressed(KeyEvent e) {
-                    pressed.add(e.getKeyCode());
-                    switch (e.getKeyCode()) {
-                        case KeyEvent.VK_ENTER -> { stage.startGame(); repaint(); }
-                        case KeyEvent.VK_W, KeyEvent.VK_UP -> { if (!stage.hasSpeedPowerup) { stage.movePlayerBy(0, -1); repaint(); } }
-                        case KeyEvent.VK_S, KeyEvent.VK_DOWN -> { if (!stage.hasSpeedPowerup) { stage.movePlayerBy(0, 1); repaint(); } }
-                        case KeyEvent.VK_A, KeyEvent.VK_LEFT -> { if (!stage.hasSpeedPowerup) { stage.movePlayerBy(-1, 0); repaint(); } }
-                        case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> { if (!stage.hasSpeedPowerup) { stage.movePlayerBy(1, 0); repaint(); } }
-                        case KeyEvent.VK_I, KeyEvent.VK_E -> { stage.toggleInventory(); repaint(); } // support E
-                        case KeyEvent.VK_F -> { stage.pickupHere(); repaint(); } // pickup
-                        case KeyEvent.VK_SPACE -> { stage.attack(); repaint(); } // attack
-                        case KeyEvent.VK_R -> { stage.resetWorld(); repaint(); } // reset
-                        case KeyEvent.VK_P -> { // optional: quick cell size adjust
-                            String in = JOptionPane.showInputDialog(Main.this, "New cell size:", Integer.toString(Cell.SIZE));
-                            try {
-                                if (in != null) stage.changeCellSize(Math.max(6, Integer.parseInt(in.trim())));
-                            } catch (NumberFormatException ignore) {
-                                // ignore invalid input
-                            }
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    pressedKeys.add(e.getKeyCode());
+                    if (stage == null) return;
+
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        stage.startGame();
+                        repaint();
+                        return;
+                    }
+
+                    if (e.getKeyCode() == KeyEvent.VK_M) {
+                        int cols = 50, rows = 50, cellSize = Cell.SIZE;
+                        try {
+                            String inputCols = JOptionPane.showInputDialog(Main.this, "Enter number of columns for the map size (default 50):", "50");
+                            String inputRows = JOptionPane.showInputDialog(Main.this, "Enter number of rows for the map size (default 50):", "50");
+                            String inputSize = JOptionPane.showInputDialog(Main.this, "Enter cell size in pixels (default " + Cell.SIZE + "):", Integer.toString(Cell.SIZE));
+                            cols = Math.max(5, Integer.parseInt(inputCols.trim()));
+                            rows = Math.max(5, Integer.parseInt(inputRows.trim()));
+                            cellSize = Math.max(2, Integer.parseInt(inputSize.trim()));
+                        } catch (Exception ex) {
+                            // defaults
+                        }
+                        Cell.SIZE = cellSize;
+                        Canvas newCanvas = new Canvas(cols, rows);
+                        Main.this.setContentPane(newCanvas);
+                        Main.this.pack();
+                        newCanvas.requestFocusInWindow();
+                        newCanvas.stage.startGame();
+                        return;
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_P) {
+                        try {
+                            String inputSize = JOptionPane.showInputDialog(Main.this, "Enter new cell size (default 35):", Integer.toString(Cell.SIZE));
+                            int newSize = Math.max(2, Integer.parseInt(inputSize.trim()));
+                            stage.changeCellSize(newSize);
+                            repaint();
+                        } catch (Exception ex) {}
+                        return;
+                    }
+
+                    if (e.getKeyCode() == KeyEvent.VK_E) {
+                        stage.toggleInventory();
+                        repaint();
+                        return;
+                    }
+
+                    if (!stage.hasSpeedPowerup) {
+                        int dc = 0, dr = 0;
+                        if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_A)) dc -= 1;
+                        if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) dc += 1;
+                        if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_W)) dr -= 1;
+                        if (pressedKeys.contains(KeyEvent.VK_DOWN) || pressedKeys.contains(KeyEvent.VK_S)) dr += 1;
+                        if (dc != 0 || dr != 0) {
+                            stage.movePlayerBy(dc, dr);
                             repaint();
                         }
                     }
+
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_F: stage.pickupHere(); break;
+                        case KeyEvent.VK_SPACE: stage.attack(); break;
+                        case KeyEvent.VK_R:
+                            if (rPressedTime == 0) {
+                                rPressedTime = System.currentTimeMillis();
+                                rResetTriggered = false;
+                            }
+                            break;
+                    }
+                    repaint();
                 }
-                @Override public void keyReleased(KeyEvent e) { pressed.remove(e.getKeyCode()); }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    pressedKeys.remove(e.getKeyCode());
+                    if (e.getKeyCode() == KeyEvent.VK_R) {
+                        rPressedTime = 0;
+                        rResetTriggered = false;
+                    }
+                }
             });
+
+            SwingUtilities.invokeLater(this::requestFocusInWindow);
         }
 
-        @Override protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
             stage.paint(g, getMousePosition(), getWidth(), getHeight());
         }
     }
 
-    private void run() {
-        setTitle("Grid Game");
+    private Main() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setContentPane(new Canvas());
+        setTitle("Inhale of the Wilderness");
+        Canvas canvas = new Canvas(50, 50);
+        setContentPane(canvas);
         pack();
-        setLocationRelativeTo(null);
         setVisible(true);
+        canvas.requestFocusInWindow();
+    }
+
+    public void run() {
+        Canvas canvas = (Canvas) getContentPane();
+        new Timer(1000 / 30, e -> canvas.repaint()).start();
     }
 }

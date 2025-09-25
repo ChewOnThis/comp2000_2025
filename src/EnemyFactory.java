@@ -1,19 +1,18 @@
-import java.util.*;
+import java.util.Map;
+import java.util.Random;
 
-// EnemyFactory creates enemies based on type and biome.
-// Uses a random number generator for weighted selection.
 public class EnemyFactory {
     // Random number generator for enemy selection.
     private final Random rng;
     
     // Constructor: initializes RNG with a seed.
-    public EnemyFactory(int seed) { 
-        rng = new Random(seed * 31L + 17L); 
+    public EnemyFactory(long seed) { 
+        this.rng = new Random(seed ^ 0x9E3779B97F4A7C15L); 
     }
 
     // Creates an enemy of the given type at the specified position.
-    public Enemy create(String name, int c, int r) {
-        return switch (name) {
+    public Enemy create(String type, int c, int r) {
+        return switch (type) {
             case "Slime" -> new SlimeEnemy(c, r);
             case "Wolf" -> new WolfEnemy(c, r);
             case "Scorpion" -> new ScorpionEnemy(c, r);

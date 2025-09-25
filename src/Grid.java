@@ -23,12 +23,13 @@ public class Grid {
     }
 
     public void regenerate(int newSeed) {
-    // Re seed by constructing a new Grid and copying over generated state
+        for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) cells[c][r]=null;
+        centers = null; centerBiome = null;
         Grid g2 = new Grid(cols, rows, newSeed);
         for (int c=0;c<cols;c++) {
-            System.arraycopy(g2.cells[c], 0, cells[c], 0, rows);
+            System.arraycopy(g2.cells[c], 0, this.cells[c], 0, rows);
         }
-        centers = g2.centers; centerBiome = g2.centerBiome;
+        this.centers = g2.centers; this.centerBiome = g2.centerBiome;
     }
 
     private void generate() {
