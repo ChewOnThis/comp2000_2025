@@ -1,3 +1,4 @@
+// Actor: game entity that can render and update, with grid position and health contract.
 
 public interface Actor extends Renderable, Updatable {
     int col();

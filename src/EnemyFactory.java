@@ -1,3 +1,4 @@
+// EnemyFactory: creates enemies by type and supports weighted selection.
 import java.util.Map;
 import java.util.Random;
 
@@ -10,15 +11,15 @@ public class EnemyFactory {
         this.rng = new Random(seed ^ 0x9E3779B97F4A7C15L); 
     }
 
-    // Creates an enemy of the given type at the specified position.
+    // Creates an enemy of the given type at the specified position. (Java 11 compatible switch)
     public Enemy create(String type, int c, int r) {
-        return switch (type) {
-            case "Slime" -> new SlimeEnemy(c, r);
-            case "Wolf" -> new WolfEnemy(c, r);
-            case "Scorpion" -> new ScorpionEnemy(c, r);
-            case "Piranha" -> new PiranhaEnemy(c, r);
-            default -> new SlimeEnemy(c, r);
-        };
+        if ("Slime".equals(type)) return new SlimeEnemy(c, r);
+        switch (type) {
+            case "Wolf": return new WolfEnemy(c, r);
+            case "Scorpion": return new ScorpionEnemy(c, r);
+            case "Piranha": return new PiranhaEnemy(c, r);
+            default: return new SlimeEnemy(c, r);
+        }
     }
     
     // Creates an enemy with biome information (for compatibility with srcFINAL).

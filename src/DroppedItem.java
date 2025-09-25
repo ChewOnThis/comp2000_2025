@@ -1,3 +1,4 @@
+// DroppedItem: a world entity representing an Item lying on the ground.
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -21,6 +22,7 @@ public class DroppedItem implements Renderable {
         int size = (int)(Cell.SIZE * 0.6);
         int x = cellX + (Cell.SIZE - size) / 2;
         int y = cellY + (Cell.SIZE - size) / 2;
+        // Special visual for Speed Powerup.
         if ("Speed Powerup".equals(item.getName())) {
             g.setColor(Color.YELLOW);
             g.fillOval(x, y, size, size);

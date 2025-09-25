@@ -1,33 +1,42 @@
+// Stage: orchestrates world, player, enemies, items, UI, and game states.
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Stage {
+    // Bold font for prominent UI labels.
     Font boldFont = new Font("Papyrus", Font.BOLD, 15);
 
+    // World dimensions and seed driving procedural generation.
     private int WORLD_COLS;
     private int WORLD_ROWS;
     private int seed = (int)(System.currentTimeMillis() & 0x7fffffff);
 
+    // Core world objects.
     private Grid grid = new Grid(WORLD_COLS, WORLD_ROWS, seed);
     private Player player = new Player(WORLD_COLS/2, WORLD_ROWS/2);
     private List<Enemy> enemies = new ArrayList<>();
     private List<DroppedItem> drops = new ArrayList<>();
     private Inventory<Item> inventory = new Inventory<>();
 
+    // Camera offset and view window.
     private int offsetX = 0, offsetY = 0;
     private int viewCols = 30, viewRows = 22;
 
+    // Factory for creating enemies with weighted selection per biome.
     private EnemyFactory enemyFactory = new EnemyFactory(seed);
 
+    // Power-up state and a dedicated world drop for it.
     public boolean hasSpeedPowerup = false;
     private DroppedItem speedPowerup = null;
 
+    // UI + session timers.
     private boolean showInventory = false;
     private long startTime = 0;
     private long endTime = 0;
 
+    // Sub-tile movement accumulators used for smooth movement when powered up.
     private double moveAccumulatorCol = 0;
     private double moveAccumulatorRow = 0;
 
@@ -46,6 +55,7 @@ public class Stage {
     private final Map<Enemy, String> enemyBiomeMap = new HashMap<>();
 
     public Stage(int worldCols, int worldRows) {
+        // Boot a fresh world and initial state.
         this.WORLD_COLS = worldCols;
         this.WORLD_ROWS = worldRows;
         seed = (int)(System.currentTimeMillis() & 0x7fffffff);
@@ -62,11 +72,12 @@ public class Stage {
         hasSpeedPowerup = false;
         moveAccumulatorCol = 0;
         moveAccumulatorRow = 0;
-        spawnEnemiesByBiome();
-        spawnSpeedPowerup();
+        spawnEnemiesByBiome();     // populate based on biome areas
+        spawnSpeedPowerup();       // place a single special powerup
     }
 
     public void resetWorld() {
+        // Re-roll seed and rebuild all world state; keep dimensions.
         seed = (int)(System.currentTimeMillis() & 0x7fffffff);
         grid = new Grid(WORLD_COLS, WORLD_ROWS, seed);
         player = new Player(WORLD_COLS/2, WORLD_ROWS/2);
@@ -85,6 +96,7 @@ public class Stage {
     }
 
     private void spawnEnemiesByBiome() {
+        // Spread enemies proportionally to biome area, sampling valid passable cells.
         enemies.clear();
         enemyBiomeMap.clear();
 
@@ -128,12 +140,14 @@ public class Stage {
     }
 
     public void startGame() {
+        // Enter PLAYING state and start timer.
         state = GameState.PLAYING;
         startTime = System.currentTimeMillis();
         endTime = 0;
     }
 
     public void movePlayerBy(int dc, int dr) {
+        // Applies either grid-step movement or smooth accumulated movement with powerup.
         if (state != GameState.PLAYING) return;
         double speed = hasSpeedPowerup ? 1.6 : 1.0;
         if (hasSpeedPowerup) {
@@ -162,6 +176,7 @@ public class Stage {
     }
 
     public void changeCellSize(int newSize) {
+        // Recreate grid visuals with new tile size and reset transient path state.
         Cell.SIZE = newSize;
         grid = new Grid(WORLD_COLS, WORLD_ROWS, seed);
         playerTrail.clear();
@@ -171,6 +186,7 @@ public class Stage {
     }
 
     public void attack() {
+        // Hit enemies in the surrounding 8 tiles plus current tile; on kill, drop loot.
         if (state != GameState.PLAYING) return;
         int[][] dirs = {
             {1,0},{-1,0},{0,1},{0,-1},
@@ -204,6 +220,7 @@ public class Stage {
     }
 
     public void pickupHere() {
+        // Collect items (and the powerup) in a Chebyshev radius of 1 around the player.
         if (state != GameState.PLAYING) return;
 
         int px = player.col(), py = player.row();
@@ -244,10 +261,12 @@ public class Stage {
     }
 
     public void toggleInventory() {
+        // Only toggle in PLAYING to avoid UI conflicts.
         if (state == GameState.PLAYING) showInventory = !showInventory;
     }
 
     public void paint(Graphics g, Point mouse, int windowW, int windowH) {
+        // Routing draw: intro/ending screens or the gameplay scene.
         if (state == GameState.INTRO) { drawIntro(g, windowW, windowH); return; }
         if (state == GameState.END) { drawEnding(g, windowW, windowH); return; }
 
@@ -316,7 +335,7 @@ public class Stage {
             g.drawString("Time: " + elapsed + "s", infoX + 12, infoY + 68);
         }
 
-        if (showInventory) drawInventory(g, windowW, windowH);
+    if (showInventory) drawInventory(g, windowW, windowH);
 
         if (hasSpeedPowerup) {
             g.setColor(Color.YELLOW);
@@ -326,6 +345,7 @@ public class Stage {
     }
 
     private void drawIntro(Graphics g, int windowW, int windowH) {
+        // Semi-transparent overlay with how-to-play and feature list.
         g.setColor(new Color(0,0,0,200));
         g.fillRect(0, 0, windowW, windowH);
         g.setColor(Color.WHITE);
@@ -374,6 +394,7 @@ public class Stage {
     }
 
     private void drawEnding(Graphics g, int windowW, int windowH) {
+        // Show score summary, time, and prompt to reset.
         g.setColor(new Color(0,0,0,220));
         g.fillRect(0, 0, windowW, windowH);
         g.setColor(Color.WHITE);
@@ -399,6 +420,7 @@ public class Stage {
     }
 
     private void drawInventory(Graphics g, int windowW, int windowH) {
+        // Full-screen dim with a simple stacked list of item counts and values.
         g.setColor(new Color(0,0,0,160));
         g.fillRect(0, 0, windowW, windowH);
         g.setColor(Color.WHITE);
@@ -412,6 +434,7 @@ public class Stage {
     }
 
     private int getItemValue(String name) {
+        // Assign a simple score value per item name for the ending screen.
         switch (name) {
             case "Potion": return 10;
             case "Sword": return 25;
@@ -430,45 +453,46 @@ public class Stage {
     }
 
     private Item getDropForEnemy(Enemy e, String biomeName) {
+        // Choose a loot item based on the enemy type and the biome they spawned from.
         Random rng = new Random(System.nanoTime() + e.col() * 31 + e.row() * 17);
         if ("Desert".equals(biomeName)) {
             if ("Scorpion".equals(e.type())) {
                 Item[] pool = {
-                    new Weapon() { public String getName(){return "Sand Blade";} },
-                    new Weapon() { public String getName(){return "Cactus Juice";} },
-                    new Weapon() { public String getName(){return "Scorpion Stinger";} }
+                    new Weapon() { @Override public String getName(){return "Sand Blade";} },
+                    new Weapon() { @Override public String getName(){return "Cactus Juice";} },
+                    new Weapon() { @Override public String getName(){return "Scorpion Stinger";} }
                 };
                 return pool[rng.nextInt(pool.length)];
             } else if ("Slime".equals(e.type())) {
-                Item[] pool = { new Potion(), new Weapon() { public String getName(){return "Sand Blade";} } };
+                Item[] pool = { new Potion(), new Weapon() { @Override public String getName(){return "Sand Blade";} } };
                 return pool[rng.nextInt(pool.length)];
             }
         } else if ("Water".equals(biomeName)) {
             if ("Piranha".equals(e.type())) {
                 Item[] pool = {
-                    new Weapon() { public String getName(){return "Water Pearl";} },
-                    new Weapon() { public String getName(){return "Fish Scale";} },
-                    new Weapon() { public String getName(){return "Piranha Tooth";} }
+                    new Weapon() { @Override public String getName(){return "Water Pearl";} },
+                    new Weapon() { @Override public String getName(){return "Fish Scale";} },
+                    new Weapon() { @Override public String getName(){return "Piranha Tooth";} }
                 };
                 return pool[rng.nextInt(pool.length)];
             }
         } else if ("Forest".equals(biomeName)) {
             if ("Wolf".equals(e.type())) {
                 Item[] pool = {
-                    new Weapon() { public String getName(){return "Wolf Fang";} },
-                    new Weapon() { public String getName(){return "Ancient Bark";} }
+                    new Weapon() { @Override public String getName(){return "Wolf Fang";} },
+                    new Weapon() { @Override public String getName(){return "Ancient Bark";} }
                 };
                 return pool[rng.nextInt(pool.length)];
             } else if ("Slime".equals(e.type())) {
-                Item[] pool = { new Potion(), new Weapon() { public String getName(){return "Leaf Cloak";} } };
+                Item[] pool = { new Potion(), new Weapon() { @Override public String getName(){return "Leaf Cloak";} } };
                 return pool[rng.nextInt(pool.length)];
             }
         } else if ("Grassland".equals(biomeName)) {
             if ("Slime".equals(e.type())) {
-                Item[] pool = { new Potion(), new Weapon() { public String getName(){return "Leaf Cloak";} } };
+                Item[] pool = { new Potion(), new Weapon() { @Override public String getName(){return "Leaf Cloak";} } };
                 return pool[rng.nextInt(pool.length)];
             } else if ("Wolf".equals(e.type())) {
-                Item[] pool = { new Weapon() { public String getName(){return "Wolf Fang";} }, new Potion() };
+                Item[] pool = { new Weapon() { @Override public String getName(){return "Wolf Fang";} }, new Potion() };
                 return pool[rng.nextInt(pool.length)];
             }
         }
@@ -477,6 +501,7 @@ public class Stage {
     }
 
     private void spawnSpeedPowerup() {
+        // Place a single golden drop as the speed powerup at a random location.
         Random rng = new Random(seed ^ 0xabcdef12);
         int c = rng.nextInt(WORLD_COLS), r = rng.nextInt(WORLD_ROWS);
         speedPowerup = new DroppedItem(new SpeedPowerup(), c, r);

@@ -1,3 +1,4 @@
+// Cell: one tile in the grid, with a biome and terrain. Handles its own drawing.
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -19,6 +20,7 @@ public class Cell extends Rectangle {
 
     public Terrain getTerrain() { return terrain; }
     public Biome getBiome() { return biome; }
+    // Passability: water biome is walkable in this game; otherwise use terrain setting.
     public boolean passable() {
         if (biome != null && "Water".equalsIgnoreCase(biome.name())) return true;
         return terrain.passable;

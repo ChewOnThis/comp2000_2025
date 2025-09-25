@@ -1,3 +1,4 @@
+// Grid: world map generation, biome assignment, and painting of visible cells.
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.*;
@@ -33,6 +34,7 @@ public class Grid {
     }
 
     private void generate() {
+        // 1) Sample a small number of random biome centers.
         int nCenters = Math.max(4, (cols*rows) / 800);
         nCenters = Math.min(nCenters, cols * rows);
         if (nCenters <= 0) nCenters = 4;
@@ -45,6 +47,7 @@ public class Grid {
             centerBiome.put(i, b);
         }
 
+        // 2) For each cell, find its closest and 2nd closest biome centers.
         int[][] owner = new int[cols][rows];
         int[][] second = new int[cols][rows];
         for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
@@ -58,11 +61,14 @@ public class Grid {
             owner[c][r] = bi; second[c][r] = si;
         }
 
+        // 3) Initialize each cell from the base biome of its closest center.
         for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
             Biome b = centerBiome.get(owner[c][r]);
             cells[c][r] = new Cell(c, r, c*cellSize, r*cellSize, b.baseTerrain(), b);
         }
 
+        // 4) Along borders between regions, randomly bleed in the neighbor biome
+        //    to make edges look more organic.
         for (int c=0;c<cols;c++) for (int r=0;r<rows;r++) {
             int o = owner[c][r];
             boolean near = false;
@@ -90,6 +96,7 @@ public class Grid {
     }
 
     public void paint(Graphics g, Point mouse, int offsetX, int offsetY, int viewCols, int viewRows, int focusCol, int focusRow) {
+        // Only paint a padded window around the player to reduce draw cost.
         int startC = Math.max(0, focusCol - viewCols/2 - 1);
         int endC   = Math.min(cols, focusCol + viewCols/2 + 2);
         int startR = Math.max(0, focusRow - viewRows/2 - 1);

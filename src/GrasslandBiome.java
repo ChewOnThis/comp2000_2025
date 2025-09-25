@@ -1,3 +1,4 @@
+// Grassland biome: balanced terrain; slimes common, some wolves.
 import java.awt.Color;
 import java.util.Map;
 

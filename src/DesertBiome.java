@@ -1,3 +1,4 @@
+// Desert biome: sandy terrain, scorpions common.
 import java.awt.Color;
 import java.util.Map;
 

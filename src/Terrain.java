@@ -1,3 +1,4 @@
+// Terrain: low-level tile material with a display color and passability flag.
 import java.awt.Color;
 
 public enum Terrain {
@@ -14,7 +15,7 @@ public enum Terrain {
         this.passable = passable;
     }
 
-    
+    // Convenience accessor used by some draw code.
     public Color getColor() {
         return color;
     }

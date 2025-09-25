@@ -1,3 +1,4 @@
+// Player: the controllable actor; holds position, HP, color, and an inventory.
 import java.awt.Color;
 import java.awt.Graphics;
 

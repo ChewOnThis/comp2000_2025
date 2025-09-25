@@ -1,3 +1,4 @@
+// Forest biome: dense greenery; wolves common, some slimes.
 import java.awt.Color;
 import java.util.Map;
 

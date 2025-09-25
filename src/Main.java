@@ -1,3 +1,4 @@
+// Main: bootstraps a Swing window, manages input, and delegates to Stage.
 import java.awt.*;
 import java.awt.event.*;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ public class Main extends JFrame {
         SwingUtilities.invokeLater(() -> new Main().run());
     }
 
+    // Canvas: the drawable panel; owns a Stage and handles keyboard input.
     class Canvas extends JPanel {
         Stage stage;
         private final Set<Integer> pressedKeys = new HashSet<>();

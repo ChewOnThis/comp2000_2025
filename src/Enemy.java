@@ -1,3 +1,4 @@
+// Enemy: base class for all hostile actors (HP, position, simple rendering, and nameplate).
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -17,7 +18,7 @@ public abstract class Enemy implements Actor {
 
     @Override
     public void render(Graphics g, int offsetX, int offsetY) {
-        int size = (int)(Cell.SIZE * 0.8); // scale with cell size
+    int size = (int)(Cell.SIZE * 0.8); // scale with cell size
         int x = col * Cell.SIZE + (Cell.SIZE - size) / 2 + offsetX;
         int y = row * Cell.SIZE + (Cell.SIZE - size) / 2 + offsetY;
         g.setColor(color);
